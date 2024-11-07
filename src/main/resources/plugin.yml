@@ -1,0 +1,15 @@
+name: ${name}
+version: ${pluginVersion}
+main: skin.Skin
+description: "${description}"
+author: "${author}"
+website: "${website}"
+api-version: "${apiVersion}"
+commands:
+  skin:
+    permission: skin.*
+permissions :
+  skin.*:
+    default: op
+# https://modrinth.com/plugin/kotlinmc/
+depend: [ Kotlin ]
