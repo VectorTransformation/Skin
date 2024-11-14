@@ -1,10 +1,8 @@
 package skin.system
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.stream.consumeAsFlow
 import kotlinx.serialization.json.Json
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Entity
@@ -17,8 +15,8 @@ import skin.data.YmlData
 import skin.extension.base64ToString
 import skin.extension.decimalFormat
 import skin.extension.format
+import skin.extension.skinId
 import skin.extension.skinName
-import skin.extension.skinParentName
 import java.io.File
 import java.net.URI
 import java.nio.file.Files
@@ -30,38 +28,27 @@ import kotlin.io.path.pathString
 import kotlin.system.measureTimeMillis
 
 object SkinSystem {
-    enum class ReloadState {
-        NONE,
-        RELOAD
-    }
-
-    var reloadState = ReloadState.NONE
-
     private val cacheDataMap = ConcurrentHashMap<UUID, SkinData>()
     private val skinDataMap = ConcurrentHashMap<String, SkinData>()
 
     fun reloader(sender: Entity? = null) {
-        if (reloadState == ReloadState.RELOAD) {
-            return
-        }
-
-        measureTimeMillis {
-            reloadState = ReloadState.RELOAD
-
-            cacheReload()
-
-            skinReload()
-
-            reloadState = ReloadState.NONE
-        }.run {
-            val info = "${skinDataMap.size} Skin File Reload Completed (${decimalFormat()} ms)"
-            Cardinal.info(Component.text(
-                info
-            ))
-            if (sender is Player) {
-                sender.sendMessage(Component.text(
-                    "[${Cardinal.ADMINISTRATOR}] $info"
+        ReloadSystem.operation(ReloadType.SKIN) {
+            measureTimeMillis {
+                cacheReload()
+                skinReload()
+            }.run {
+                if (skinDataMap.isEmpty) {
+                    return@operation
+                }
+                val info = "${skinDataMap.size} Skin File Reload Completed (${decimalFormat()} ms)"
+                Cardinal.info(Component.text(
+                    info
                 ))
+                if (sender is Player) {
+                    sender.sendMessage(Component.text(
+                        "[${Cardinal.ADMINISTRATOR}] $info"
+                    ))
+                }
             }
         }
     }
@@ -75,9 +62,9 @@ object SkinSystem {
                 ).apply {
                     cacheDataMap.clear()
                 }
-            ).consumeAsFlow().filter {
+            ).filter {
                 it.name.endsWith(".yml")
-            }.collect { path ->
+            }.forEach { path ->
                 launch(Dispatchers.IO) {
                     try {
                         val yml = path.toFile()
@@ -105,13 +92,13 @@ object SkinSystem {
                 ).apply {
                     skinDataMap.clear()
                 }
-            ).consumeAsFlow().filter {
+            ).filter {
                 it.name.endsWith(".yml")
-            }.collect { path ->
+            }.forEach { path ->
                 launch(Dispatchers.IO) {
                     try {
                         val yml = path.toFile()
-                        val name = path.skinParentName().plus(path.skinName())
+                        val name = path.skinId()
                         if (isLegacySkin(yml)) {
                             legacySkinData(yml, name)
                         } else {
@@ -148,19 +135,18 @@ object SkinSystem {
             )
         ).apply {
             skinDataMap[name] = this
-        }.run {
             skinSave(this, name, true)
         }
     }
 
-    fun cacheDataSave(player: Player) {
+    fun cacheDataJoin(player: Player) {
         val uuid = player.uniqueId
         cacheDataMap[uuid] = skinData(player).apply {
             cacheSave(player, this)
         }
     }
 
-    fun cacheDataDelete(player: Player) {
+    fun cacheDataQuit(player: Player) {
         val uuid = player.uniqueId
         cacheDataMap.remove(uuid)
     }
@@ -230,7 +216,6 @@ object SkinSystem {
     fun save(player: Player, name: String) {
         skinData(player).apply {
             skinDataMap[name] = this
-        }.run {
             skinSave(this, name)
         }
     }

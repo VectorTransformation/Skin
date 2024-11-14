@@ -10,14 +10,14 @@ class SkinListener : Listener {
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         with(event) {
-            SkinSystem.cacheDataSave(player)
+            SkinSystem.cacheDataJoin(player)
         }
     }
 
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         with(event) {
-            SkinSystem.cacheDataDelete(player)
+            SkinSystem.cacheDataQuit(player)
         }
     }
 }

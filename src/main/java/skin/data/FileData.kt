@@ -1,8 +1,6 @@
 package skin.data
 
-import kotlinx.coroutines.launch
 import org.bukkit.entity.Entity
-import skin.extension.ioScope
 import skin.extension.isFile
 import skin.system.Cardinal
 import skin.system.SkinSystem
@@ -12,7 +10,6 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories
 import kotlin.io.path.exists
-import kotlin.io.path.writeBytes
 
 object FileData {
     val dataFolderPath = Cardinal.instance().dataFolder.path
@@ -40,7 +37,7 @@ object FileData {
         }
     }
 
-    fun creater(path: Path, writer: String? = null): Boolean {
+    fun creater(path: Path): Boolean {
         with(path) {
             if (exists()) {
                 return false
@@ -48,11 +45,6 @@ object FileData {
             if (isFile()) {
                 createParentDirectories()
                 createFile()
-                writer?.let { write ->
-                    ioScope.launch {
-                        writeBytes(write.toByteArray())
-                    }
-                }
             } else {
                 createDirectories()
             }
