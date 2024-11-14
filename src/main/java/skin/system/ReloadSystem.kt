@@ -1,13 +1,14 @@
 package skin.system
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentSkipListSet
 
 enum class ReloadType {
     SKIN
 }
 
 object ReloadSystem {
-    private val state = ConcurrentHashMap<ReloadType, Boolean>()
+    private val state = ConcurrentSkipListSet<ReloadType>()
 
     fun operation(reloadType: ReloadType, failed: () -> Unit = {}, successful: () -> Unit) {
         if (!ready(reloadType)) {
@@ -20,11 +21,11 @@ object ReloadSystem {
     }
 
     fun ready(reloadType: ReloadType): Boolean {
-        return state[reloadType] != false
+        return !state.contains(reloadType)
     }
 
     fun start(reloadType: ReloadType) {
-        state[reloadType] = true
+        state.add(reloadType)
     }
 
     fun end(reloadType: ReloadType) {
