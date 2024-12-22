@@ -1,14 +1,14 @@
 package skin
 
 import org.bukkit.plugin.java.JavaPlugin
-import skin.data.FileData
-import skin.system.command.CommandSystem
-import skin.system.listener.ListenerSystem
+import skin.handler.CommandHandler
+import skin.handler.ListenerHandler
+import skin.handler.SkinHandler
 
 class Skin : JavaPlugin() {
     override fun onEnable() {
-        FileData.reloader()
-        CommandSystem.executor()
-        ListenerSystem.register()
+        SkinHandler.reload()
+        ListenerHandler.all()
+        CommandHandler.all()
     }
 }

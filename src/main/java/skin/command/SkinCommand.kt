@@ -5,8 +5,7 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
 import org.bukkit.entity.Player
-import skin.data.FileData
-import skin.system.SkinSystem
+import skin.handler.SkinHandler
 
 class SkinCommand : TabExecutor {
     override fun onTabComplete(
@@ -24,9 +23,7 @@ class SkinCommand : TabExecutor {
             )
             2 -> {
                 when (args[0]) {
-                    "reset", "save", "set" -> Bukkit.getOnlinePlayers().map {
-                        it.name
-                    }
+                    "reset", "save", "set" -> Bukkit.getOnlinePlayers().map(Player::getName)
                     else -> listOf()
                 }
             }
@@ -35,7 +32,7 @@ class SkinCommand : TabExecutor {
                     "save" -> listOf(
                         "tmp"
                     )
-                    "set" -> SkinSystem.skinList()
+                    "set" -> SkinHandler.skinList()
                     else -> listOf()
                 }
             }
@@ -66,12 +63,12 @@ class SkinCommand : TabExecutor {
     }
 
     fun reload(sender: CommandSender, args: Array<String>) {
-        FileData.reloader(sender as? Player)
+        SkinHandler.reload()
     }
 
     fun reset(sender: CommandSender, args: Array<String>) {
         val player = Bukkit.getPlayer(args[1]) ?: return
-        SkinSystem.reset(player)
+        SkinHandler.reset(player)
     }
 
     fun save(sender: CommandSender, args: Array<String>) {
@@ -81,12 +78,12 @@ class SkinCommand : TabExecutor {
         } else {
             "tmp"
         }
-        SkinSystem.save(player, name)
+        SkinHandler.save(player, name)
     }
 
     fun set(sender: CommandSender, args: Array<String>) {
         val player = Bukkit.getPlayer(args[1]) ?: return
         val name = args[2]
-        SkinSystem.set(player, name)
+        SkinHandler.set(player, name)
     }
 }

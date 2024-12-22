@@ -4,20 +4,16 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import skin.system.SkinSystem
+import skin.handler.SkinHandler
 
 class SkinListener : Listener {
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        with(event) {
-            SkinSystem.cacheDataJoin(player)
-        }
+        SkinHandler.cacheDataJoin(event.player)
     }
 
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
-        with(event) {
-            SkinSystem.cacheDataQuit(player)
-        }
+        SkinHandler.cacheDataQuit(event.player)
     }
 }

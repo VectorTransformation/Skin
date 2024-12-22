@@ -1,34 +1,24 @@
 package skin.system
 
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import org.bukkit.Bukkit
+import org.bukkit.command.CommandExecutor
 import org.bukkit.event.Listener
-import org.bukkit.plugin.PluginManager
 import org.bukkit.plugin.java.JavaPlugin
 
 object Cardinal {
     const val ADMINISTRATOR = "Skin"
 
-    fun instance(): JavaPlugin {
-        return Bukkit.getPluginManager().getPlugin(
-            ADMINISTRATOR
-        ) as JavaPlugin
-    }
+    fun instance() = manager().getPlugin(ADMINISTRATOR) as JavaPlugin
 
-    fun logger(): ComponentLogger {
-        return instance().componentLogger
-    }
+    fun dataFolder() = instance().dataFolder
 
-    fun info(component: Component) {
-        return logger().info(component)
-    }
+    fun manager() = Bukkit.getPluginManager()
 
-    fun pluginManager(): PluginManager {
-        return Bukkit.getPluginManager()
-    }
+    fun addCommand(command: String, executor: CommandExecutor) = instance().getCommand(command)?.setExecutor(executor)
 
-    fun registerEvent(listener: Listener) {
-        pluginManager().registerEvents(listener, instance())
+    fun addListener(listener: Listener) = manager().registerEvents(listener, instance())
+
+    fun log(msg: Any) {
+        instance().logger.info(msg.toString())
     }
 }
