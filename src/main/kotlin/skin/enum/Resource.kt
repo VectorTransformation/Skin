@@ -25,4 +25,6 @@ enum class Resource(val file: File) {
     ) = file.forEach(filter, action)
 
     fun clear() = file.clear()
+
+    fun path() = file.invariantSeparatorsPath
 }

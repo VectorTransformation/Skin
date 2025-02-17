@@ -1,4 +1,4 @@
-package skin.handler
+package skin.manager
 
 import kotlinx.serialization.json.Json
 import org.bukkit.entity.Player
@@ -15,7 +15,7 @@ import java.io.File
 import java.net.URI
 import java.util.*
 
-object SkinHandler {
+object SkinManager {
     private val cacheDataMap = HashMap<UUID, SkinData>()
     private val skinDataMap = HashMap<String, SkinData>()
 
@@ -25,16 +25,16 @@ object SkinHandler {
         skinReload()
     }
 
-    fun dataReload() {
+    private fun dataReload() {
         Resource.ABYSS.make()
         Resource.CACHE.make()
         Resource.SKIN.make()
     }
 
-    fun cacheReload() {
+    private fun cacheReload() {
         cacheDataMap.clear()
         Resource.CACHE.make().forEach("yml") { yml ->
-            try {
+            runCatching {
                 val name = yml.nameWithoutExtension
                 val skin = URI.create(YmlData.string("skin", "", yml)).toURL()
                 val model = PlayerTextures.SkinModel.valueOf(YmlData.string("model", "", yml).uppercase())
@@ -43,8 +43,6 @@ object SkinHandler {
                     skin,
                     model
                 )
-            } catch (_: Exception) {
-                return@forEach
             }
         }
     }
@@ -52,7 +50,7 @@ object SkinHandler {
     fun skinReload() {
         skinDataMap.clear()
         Resource.SKIN.make().forEach("yml") { yml ->
-            try {
+            runCatching {
                 val name = yml.nameWithoutExtension
                 if (isLegacySkin(yml)) {
                     legacySkinData(yml, name)
@@ -64,8 +62,6 @@ object SkinHandler {
                         model
                     )
                 }
-            } catch (_: Exception) {
-                return@forEach
             }
         }
     }
